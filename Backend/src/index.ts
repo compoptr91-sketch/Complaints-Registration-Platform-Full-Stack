@@ -10,8 +10,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// app.use(cors({
+//   origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+//   credentials: true
+// }));
 app.use(cors({
-  origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+  origin: ['http://localhost:5500', 'https://complaints-registration-platform-full-r7lh.onrender.com'],
   credentials: true
 }));
 app.use(express.json());
@@ -34,4 +38,4 @@ process.on('uncaughtException', (error) => {
 });
 
 // Keep process alive for long-running server
-setInterval(() => {}, 10000);
+setInterval(() => { }, 10000);
