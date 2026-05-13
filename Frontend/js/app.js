@@ -74,8 +74,14 @@ function renderLogin() {
                 email: document.getElementById('login-email').value,
                 password: document.getElementById('login-password').value
             });
-            toast.show('Welcome back!');
-            checkSession();
+            toast.show('Welcome back, ' + currentUser.name + '!');
+            navbar.classList.remove('hidden');
+            if (currentUser.role === 'admin') {
+                navAdmin.classList.remove('hidden');
+                navigate('admin');
+            } else {
+                navigate('my');
+            }
         } catch (err) {
             toast.error(err.message);
         }

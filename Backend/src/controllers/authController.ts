@@ -10,6 +10,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 export const sendOTP = async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Name and email are required' });
+  }
+
   try {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
@@ -40,6 +44,7 @@ export const sendOTP = async (req: Request, res: Response) => {
     await sendOTPEmail(email, otp);
     res.json({ message: 'OTP sent to your email' });
   } catch (error: any) {
+    console.error('Error in sendOTP:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -69,6 +74,7 @@ export const register = async (req: Request, res: Response) => {
 
     res.json({ message: 'Registration successful' });
   } catch (error: any) {
+    console.error('Error in register:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -95,6 +101,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.json({ name: user.name, email: user.email, role: user.role });
   } catch (error: any) {
+    console.error('Error in login:', error);
     res.status(500).json({ error: error.message });
   }
 };
