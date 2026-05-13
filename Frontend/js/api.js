@@ -1,4 +1,5 @@
-const BACKEND_BASE_URL = 'http://localhost:3000';
+//const BACKEND_BASE_URL = 'http://localhost:3000';
+const BACKEND_BASE_URL = 'https://complaints-registration-platform-full-tmid.onrender.com/';
 const API_BASE = `${BACKEND_BASE_URL}/api`;
 
 const api = {
