@@ -1,42 +1,41 @@
-import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // Use SSL for port 465
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized: false
-  },
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
-});
+export const sendOTPEmail = async (email: string, otp: string, name: string = 'User') => {
+  console.log(`Attempting to send OTP via EmailJS to ${email}`);
 
-export const sendOTPEmail = async (email: string, otp: string) => {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    throw new Error('Email credentials missing in environment variables');
-  }
-
-  const mailOptions = {
-    from: `"Complaint Platform" <${process.env.GMAIL_USER}>`,
-    to: email,
-    subject: 'Your OTP for Complaint Registration Platform',
-    text: `Your 6-digit OTP is: ${otp}. It will expire in 10 minutes.`,
+  const data = {
+    service_id: 'service_c4vpo1p',
+    template_id: 'template_7blk1ch',
+    user_id: 'XfIj_4J13gpzqBSbN',
+    template_params: {
+      otp: otp,
+      to_email: email,
+      user_name: name,
+    }
   };
 
   try {
-    console.log(`GENERATED OTP FOR ${email}: ${otp}`); // For debugging if email fails
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
 
-    await transporter.sendMail(mailOptions);
-    console.log(`OTP sent successfully to ${email}`);
+    if (response.ok) {
+      console.log(`OTP successfully sent via EmailJS to ${email}`);
+    } else {
+      const errorText = await response.text();
+      console.error('EmailJS Error Response:', errorText);
+      throw new Error(`EmailJS Failed: ${errorText}`);
+    }
   } catch (error: any) {
-    console.error('Nodemailer Error Details:', error);
-    throw new Error(`Failed to send OTP email: ${error.message}`);
+    console.error('Error in sendOTPEmail:', error);
+    // Log the OTP as fallback so user isn't stuck
+    console.log(`FALLBACK OTP FOR ${email}: ${otp}`);
+    throw new Error(`Failed to send email: ${error.message}`);
   }
 };
