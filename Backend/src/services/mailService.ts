@@ -13,6 +13,7 @@ export const sendOTPEmail = async (email: string, otp: string, name: string = 'U
     template_params: {
       otp: otp,
       to_email: email,
+      email: email, // Adding this as a fallback
       user_name: name,
     }
   };
