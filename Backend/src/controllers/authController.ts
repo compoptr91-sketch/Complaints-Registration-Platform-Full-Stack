@@ -41,11 +41,12 @@ export const sendOTP = async (req: Request, res: Response) => {
       });
     }
 
+    console.log(`GENERATED OTP FOR ${email}: ${otp}`); // For debugging if email fails
     await sendOTPEmail(email, otp);
     res.json({ message: 'OTP sent to your email' });
   } catch (error: any) {
-    console.error('Error in sendOTP:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in sendOTP handler:', error);
+    res.status(500).json({ error: error.message || 'Failed to process OTP' });
   }
 };
 

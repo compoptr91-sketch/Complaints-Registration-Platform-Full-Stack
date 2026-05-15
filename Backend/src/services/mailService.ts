@@ -11,6 +11,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: false // Fixes certificate issues on cloud servers
+  }
 });
 
 export const sendOTPEmail = async (email: string, otp: string) => {
@@ -26,6 +29,8 @@ export const sendOTPEmail = async (email: string, otp: string) => {
   };
 
   try {
+    console.log(`GENERATED OTP FOR ${email}: ${otp}`); // For debugging if email fails
+
     await transporter.sendMail(mailOptions);
     console.log(`OTP sent successfully to ${email}`);
   } catch (error: any) {
