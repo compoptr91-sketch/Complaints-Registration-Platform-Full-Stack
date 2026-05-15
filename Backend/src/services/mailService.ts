@@ -9,6 +9,7 @@ export const sendOTPEmail = async (email: string, otp: string, name: string = 'U
     service_id: 'service_c4vpo1p',
     template_id: 'template_7blk1ch',
     user_id: 'XfIj_4J13gpzqBSbN',
+    accessToken: 'smoSJUGOvKqYjQvUE4tWZ', // Private Key for strict mode
     template_params: {
       otp: otp,
       to_email: email,
