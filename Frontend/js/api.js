@@ -7,7 +7,16 @@ const api = {
         const res = await fetch(`${API_BASE}${endpoint}`, {
             credentials: 'include'
         });
-        const data = await res.json();
+        
+        let data;
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            data = await res.json();
+        } else {
+            const text = await res.text();
+            throw new Error(`Server Error (${res.status}): ${text.slice(0, 100)}...`);
+        }
+
         if (!res.ok) throw new Error(data.error || 'Request failed');
         return data;
     },
@@ -19,7 +28,16 @@ const api = {
             body: JSON.stringify(body),
             credentials: 'include'
         });
-        const data = await res.json();
+
+        let data;
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            data = await res.json();
+        } else {
+            const text = await res.text();
+            throw new Error(`Server Error (${res.status}): ${text.slice(0, 100)}...`);
+        }
+
         if (!res.ok) throw new Error(data.error || 'Request failed');
         return data;
     }
