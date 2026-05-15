@@ -18,8 +18,15 @@ app.use(cors({
   origin: ['http://localhost:5500', 'https://complaints-registration-platform-full-r7lh.onrender.com'],
   credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
+
+// Request logging for debugging deployment
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

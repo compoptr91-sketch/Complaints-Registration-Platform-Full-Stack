@@ -93,10 +93,13 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
 
+    const isProduction = req.get('host')?.includes('onrender.com');
+
     res.cookie('token', token, {
-      httpOnly: false, // As per requirements
-      secure: false,   // As per requirements
-      sameSite: 'lax', // For local testing
+      httpOnly: true, // Recommended for security
+      secure: isProduction, // Must be true for sameSite: 'none'
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
     res.json({ name: user.name, email: user.email, role: user.role });
@@ -107,7 +110,12 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = (req: Request, res: Response) => {
-  res.clearCookie('token');
+  const isProduction = req.get('host')?.includes('onrender.com');
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  });
   res.json({ message: 'Logged out' });
 };
 
