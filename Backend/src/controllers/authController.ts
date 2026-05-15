@@ -14,8 +14,10 @@ export const sendOTP = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Name and email are required' });
   }
 
+  let otp = ''; // Define outside so it's accessible in catch block
+
   try {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
     // Check if user exists
@@ -47,8 +49,8 @@ export const sendOTP = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error in sendOTP handler:', error);
     // FALLBACK: Since Render is blocking Gmail, we show the OTP in the error message for testing
-    res.status(500).json({ 
-      error: `[DEBUG MODE] Email failed (Connection Timeout). Your OTP is: ${otp}` 
+    res.status(500).json({
+      error: `[DEBUG MODE] Email failed (Connection Timeout). Your OTP is: ${otp}`
     });
   }
 };
