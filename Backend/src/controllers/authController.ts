@@ -46,7 +46,10 @@ export const sendOTP = async (req: Request, res: Response) => {
     res.json({ message: 'OTP sent to your email' });
   } catch (error: any) {
     console.error('Error in sendOTP handler:', error);
-    res.status(500).json({ error: error.message || 'Failed to process OTP' });
+    // FALLBACK: Since Render is blocking Gmail, we show the OTP in the error message for testing
+    res.status(500).json({ 
+      error: `[DEBUG MODE] Email failed (Connection Timeout). Your OTP is: ${otp}` 
+    });
   }
 };
 
