@@ -8,9 +8,11 @@ import { sendOTPEmail } from '../services/mailService';
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
 export const sendOTP = async (req: Request, res: Response) => {
+  console.log('ENTER: sendOTP - email:', req.body.email);
   const { name, email } = req.body;
 
   if (!name || !email) {
+    console.log('EXIT: sendOTP - missing fields');
     return res.status(400).json({ error: 'Name and email are required' });
   }
 
@@ -46,6 +48,7 @@ export const sendOTP = async (req: Request, res: Response) => {
     console.log(`GENERATED OTP FOR ${email}: ${otp}`);
 
     await sendOTPEmail(email, otp, name);
+    console.log('EXIT: sendOTP - success');
     res.json({ message: 'OTP sent to your email' });
   } catch (error: any) {
     console.error('Error in sendOTP handler:', error);
@@ -54,6 +57,7 @@ export const sendOTP = async (req: Request, res: Response) => {
 };
 
 export const register = async (req: Request, res: Response) => {
+  console.log('ENTER: register - email:', req.body.email);
   const { email, otp, password } = req.body;
 
   try {
@@ -76,6 +80,7 @@ export const register = async (req: Request, res: Response) => {
       otpExpiry: null,
     }).where(eq(users.id, user.id));
 
+    console.log('EXIT: register - success');
     res.json({ message: 'Registration successful' });
   } catch (error: any) {
     console.error('Error in register:', error);
@@ -84,10 +89,12 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
+  console.log('ENTER: login - email:', req.body.email);
   const { email, password } = req.body;
   console.log(`Login attempt for: ${email}`);
 
   if (!email || !password) {
+    console.log('EXIT: login - missing credentials');
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
@@ -102,15 +109,14 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
 
-    const isProduction = req.get('host')?.includes('onrender.com');
-
     res.cookie('token', token, {
-      httpOnly: true, // Recommended for security
-      secure: isProduction, // Must be true for sameSite: 'none'
-      sameSite: isProduction ? 'none' : 'lax',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
+    console.log('EXIT: login - success');
     res.json({ name: user.name, email: user.email, role: user.role });
   } catch (error: any) {
     console.error('Error in login:', error);
@@ -119,19 +125,22 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = (req: Request, res: Response) => {
-  const isProduction = req.get('host')?.includes('onrender.com');
+  console.log('ENTER: logout');
   res.clearCookie('token', {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: true,
+    sameSite: 'none',
   });
+  console.log('EXIT: logout - success');
   res.json({ message: 'Logged out' });
 };
 
 export const me = async (req: Request, res: Response) => {
+  console.log('ENTER: me');
   const token = req.cookies.token;
 
   if (!token) {
+    console.log('EXIT: me - not authenticated');
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
@@ -142,11 +151,14 @@ export const me = async (req: Request, res: Response) => {
     });
 
     if (!user) {
+      console.log('EXIT: me - user not found');
       return res.status(401).json({ error: 'User not found' });
     }
 
+    console.log('EXIT: me - success');
     res.json({ name: user.name, email: user.email, role: user.role });
   } catch (error) {
+    console.error('ERROR in me:', error);
     res.status(401).json({ error: 'Invalid token' });
   }
 };

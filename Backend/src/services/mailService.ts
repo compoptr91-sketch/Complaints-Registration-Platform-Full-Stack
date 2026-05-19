@@ -1,39 +1,31 @@
-import dotenv from 'dotenv';
+import { Resend } from 'resend';
 
-dotenv.config();
+const resend = new Resend('re_4qmnFUoo_JqA2d58nJhvJ879ee4uzT26Z');
 
 export const sendOTPEmail = async (email: string, otp: string, name: string = 'User') => {
-  console.log(`Attempting to send OTP via EmailJS to ${email}`);
-
-  const data = {
-    service_id: 'service_c4vpo1p',
-    template_id: 'template_7blk1ch',
-    user_id: 'XfIj_4J13gpzqBSbN',
-    accessToken: 'smoSJUGOvKqYjQvUE4tWZ', // Private Key for strict mode
-    template_params: {
-      otp: otp,
-      to_email: email,
-      email: email, // Adding this as a fallback
-      user_name: name,
-    }
-  };
+  console.log(`Attempting to send OTP via Resend to ${email}`);
 
   try {
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
+    const { data, error } = await resend.emails.send({
+      from: 'info@compop-dev.shop',
+      to: email,
+      subject: 'Your OTP Code',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Hello ${name},</h2>
+          <p>Your OTP code is:</p>
+          <h1 style="font-size: 32px; letter-spacing: 2px; color: #333;">${otp}</h1>
+          <p>Please use this code to verify your email address. It will expire in 10 minutes.</p>
+        </div>
+      `,
     });
 
-    if (response.ok) {
-      console.log(`OTP successfully sent via EmailJS to ${email}`);
-    } else {
-      const errorText = await response.text();
-      console.error('EmailJS Error Response:', errorText);
-      throw new Error(`EmailJS Failed: ${errorText}`);
+    if (error) {
+      console.error('Resend Error Response:', error);
+      throw new Error(`Resend Failed: ${error.message}`);
     }
+
+    console.log(`OTP successfully sent via Resend to ${email}`);
   } catch (error: any) {
     console.error('Error in sendOTPEmail:', error);
     // Log the OTP as fallback so user isn't stuck

@@ -1,6 +1,10 @@
-//const BACKEND_BASE_URL = 'http://localhost:3000';
-//const BACKEND_BASE_URL = 'https://complaints-registration-platform-full-tmid.onrender.com';
-const BACKEND_BASE_URL = 'https://complaints-registration-platform-full-qh83.onrender.com';
+const LOCAL_BACKEND_URL = 'http://localhost:3000';
+const PROD_BACKEND_URL = 'https://complaints-registration-platform-full-qh83.onrender.com';
+
+const isLocalhost = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' || 
+                    window.location.protocol === 'file:';
+const BACKEND_BASE_URL = isLocalhost ? LOCAL_BACKEND_URL : PROD_BACKEND_URL;
 const API_BASE = `${BACKEND_BASE_URL}/api`;
 
 const api = {

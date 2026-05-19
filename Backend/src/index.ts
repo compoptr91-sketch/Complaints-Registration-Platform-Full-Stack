@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
 import complaintRoutes from './routes/complaintRoutes';
 
@@ -10,10 +11,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const allowedOrigins = [
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
+  'https://compoptr91-sketch.github.io'
+];
+
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow all origins dynamically
-    callback(null, origin || true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
   credentials: true
 }));
@@ -21,12 +31,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
-
-// Request logging for debugging deployment
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  next();
-});
+app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);

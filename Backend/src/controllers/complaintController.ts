@@ -19,20 +19,30 @@ const getUserIdFromToken = (req: Request) => {
 };
 
 export const getAIQuestion = async (req: Request, res: Response) => {
+  console.log('ENTER: getAIQuestion');
   const { complaintText } = req.body;
-  if (!complaintText) return res.status(400).json({ error: 'Complaint text required' });
+  if (!complaintText) {
+    console.log('EXIT: getAIQuestion - missing text');
+    return res.status(400).json({ error: 'Complaint text required' });
+  }
 
   try {
     const question = await generateFollowUpQuestion(complaintText);
+    console.log('EXIT: getAIQuestion - success');
     res.json({ question });
   } catch (error: any) {
+    console.error('ERROR in getAIQuestion:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
 export const createComplaint = async (req: Request, res: Response) => {
+  console.log('ENTER: createComplaint');
   const decoded = getUserIdFromToken(req);
-  if (!decoded) return res.status(401).json({ error: 'Unauthorized' });
+  if (!decoded) {
+    console.log('EXIT: createComplaint - unauthorized');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
   const { complaintText, aiQuestion, userAnswer } = req.body;
 
@@ -44,30 +54,42 @@ export const createComplaint = async (req: Request, res: Response) => {
       userAnswer,
     }).returning();
 
+    console.log('EXIT: createComplaint - success');
     res.json(newComplaint);
   } catch (error: any) {
+    console.error('ERROR in createComplaint:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
 export const getMyComplaints = async (req: Request, res: Response) => {
+  console.log('ENTER: getMyComplaints');
   const decoded = getUserIdFromToken(req);
-  if (!decoded) return res.status(401).json({ error: 'Unauthorized' });
+  if (!decoded) {
+    console.log('EXIT: getMyComplaints - unauthorized');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
   try {
     const userComplaints = await db.query.complaints.findMany({
       where: eq(complaints.userId, decoded.id),
       orderBy: [desc(complaints.createdAt)],
     });
+    console.log('EXIT: getMyComplaints - success');
     res.json(userComplaints);
   } catch (error: any) {
+    console.error('ERROR in getMyComplaints:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
 export const getAllComplaints = async (req: Request, res: Response) => {
+  console.log('ENTER: getAllComplaints');
   const decoded = getUserIdFromToken(req);
-  if (!decoded || decoded.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+  if (!decoded || decoded.role !== 'admin') {
+    console.log('EXIT: getAllComplaints - forbidden');
+    return res.status(403).json({ error: 'Forbidden' });
+  }
 
   try {
     // Joining with users to get name and email
@@ -94,8 +116,10 @@ export const getAllComplaints = async (req: Request, res: Response) => {
       .leftJoin(users, eq(complaints.userId, users.id))
       .orderBy(desc(complaints.createdAt));
 
+    console.log('EXIT: getAllComplaints - success');
     res.json(results);
   } catch (error: any) {
+    console.error('ERROR in getAllComplaints:', error);
     res.status(500).json({ error: error.message });
   }
 };
