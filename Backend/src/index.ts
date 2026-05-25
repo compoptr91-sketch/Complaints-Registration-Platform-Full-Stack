@@ -14,7 +14,8 @@ const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   'http://127.0.0.1:5500',
   'http://localhost:5500',
-  'https://compoptr91-sketch.github.io'
+  'https://compoptr91-sketch.github.io',
+  'https://250.compop-dev.shop'
 ];
 
 app.use(cors({
